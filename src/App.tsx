@@ -1,7 +1,11 @@
 import React, { useState, ChangeEvent } from 'react';
 import goodimg from "../src/assets/good.jpg";
 import evilimg from "../src/assets/evil.jpg";
+import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
+import { useWallet, InputTransactionData } from "@aptos-labs/wallet-adapter-react";
+import { Aptos, Account, Ed25519PrivateKey, InputViewFunctionData, MoveVector, Serializer, U64 } from "@aptos-labs/ts-sdk";
 
+import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 interface Range {
   min: number;
   max: number;
@@ -13,6 +17,9 @@ interface NFTItem {
   Image: string;
   id: number;
 }
+export const aptos = new Aptos();
+// change this to be your module account address
+export const moduleAddress = "d7e864c4e6350c95955ad62eaacfc53f19eaa1ee2c197a7f9b36284c363889a8";
 
 const App: React.FC = () => {
   const [range, setRange] = useState<Range>({ min: 1, max: 10 });
@@ -22,7 +29,10 @@ const App: React.FC = () => {
   const [win, setWin] = useState<boolean>(false);
   const [randomNum, setRandomNum] = useState<number | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [balance, setBalance] = useState<number>(100); // Initial balance for demonstration
+  const [balance, setBalance] = useState<number>(0); // Initial balance for demonstration
+  const privateKey = new Ed25519PrivateKey("0xc18a9a158cc0ccfe95798f526cfb9b4ee07ade0f0216d9434d02fb8dc3f56bb0");
+  const admin = Account.fromPrivateKey({ privateKey });
+  const { account } = useWallet();
 
   const nftData: NFTItem[] = [
     { title: "Good Pack", price: 0, Image: goodimg, id: 1 },
@@ -74,7 +84,7 @@ const App: React.FC = () => {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-96 relative">
         <div className="flex justify-between mb-4">
-          <button onClick={handleConnectClick} className="bg-blue-500 text-white py-2 px-4 rounded">Connect</button>
+          <WalletSelector />
           <div className="flex items-center space-x-2">
             <p className="text-black">Balance: ${balance.toFixed(2)}</p>
             <button onClick={handleRedeemClick} className="bg-yellow-500 text-white py-2 px-4 rounded">Redeem</button>
