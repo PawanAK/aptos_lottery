@@ -8,6 +8,9 @@ import {
   Account,
   Ed25519PrivateKey,
   InputViewFunctionData,
+  Serializer,
+  MoveVector,
+  U64,
 } from "@aptos-labs/ts-sdk";
 
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
@@ -64,7 +67,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const guessArray = guesses.split(",").map(Number);
-    const totalCost = guessArray.length * 10;
+    const totalCost = guessArray.length;
     setCost(totalCost);
   }, [guesses]);
 
@@ -72,8 +75,8 @@ const App: React.FC = () => {
     const fetchBalance = async () => {
       if (account) {
         const balance = await getFaBalance(account.address, token);
-        setBalance(balance);
-        console.log(`Balance: ${balance}`);
+        setBalance(balance / 100000000);
+        console.log(`Balance: ${balance / 100000000}`);
       }
     };
 
@@ -81,12 +84,53 @@ const App: React.FC = () => {
       fetchBalance();
     }
   }, [account, connected]);
+  const start_movelette = async (min: number, max: number, data: U64[], amt: number, winning_amt: number) => {
+    console.log(account!.address)
+    if (!account) return [];
+    console.log(account.address)
+    const serializer = new Serializer();
+    const movevector = new MoveVector<U64>(data);
+    movevector.serialize(serializer);
+    const transaction = await aptos.transaction.build.simple({
+      sender: admin.accountAddress,
+      data: {
+        function: `${moduleAddress}::tele_point::winner_decision`,
+        functionArguments: [account.address, min, max, movevector, amt, winning_amt]
+      }
+    })
+    try {
+      const senderAuthenticator = await aptos.transaction.sign({ signer: admin, transaction });
+      const response = await aptos.transaction.submit.simple({ transaction, senderAuthenticator });
+      // wait for transaction
+      await aptos.waitForTransaction({ transactionHash: response.hash });
+      console.log(response);
 
+    } catch (error: any) {
+      console.log("error");
+    } finally {
+      const oldbalance = balance;
+      const newbalance = await getFaBalance(account.address, token);
+      setBalance(newbalance / 100000000);
+      console.log(oldbalance); console.log(newbalance / 100000000);
+      console.log(((oldbalance * 100000000) - amt) / 100000000)
+      setWin((newbalance) != ((oldbalance * 100000000) - amt));
+      setResult(`Result: ${(newbalance) != ((oldbalance * 100000000) - amt) ? "Win" : "Lose"}`);
+    }
+  };
   const nftData: NFTItem[] = [
     { title: "Good Pack", price: 0, Image: goodimg, id: 1 },
     { title: "Evil Pack", price: 0, Image: evilimg, id: 2 },
   ];
-
+  const mint_nftpack = (prompt: string, negative_prompt: string) => {
+    var data = { "action": "Add Sticker", "prompt": prompt, "negative_prompt": negative_prompt }
+    window.Telegram.WebApp.sendData(JSON.stringify(data));
+  };
+  useEffect(() => {
+    // Ensure the Telegram Web Apps SDK is ready
+    if (window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+    }
+  }, []);
   const handleRangeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRange((prev) => ({ ...prev, [name]: parseInt(value, 10) }));
@@ -98,17 +142,22 @@ const App: React.FC = () => {
 
   const handleSubmit = () => {
     const guessArray = guesses.split(",").map(Number);
-    const randomNumGenerated =
-      Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
-    setRandomNum(randomNumGenerated);
-    const isWin = guessArray.includes(randomNumGenerated);
-    setWin(isWin);
-    setResult(`Result: ${isWin ? "Win" : "Lose"}`);
-    if (isWin) {
-      const winAmount = (range.max - range.min + 1 - guessArray.length) * 10;
-      setBalance(balance + winAmount); // Add winnings to balance
-    }
-    setBalance(balance - cost); // Deduct cost from balance after submission
+    const u64_guessArray = guessArray.map(item => new U64(item));
+    const len = guessArray.length
+    const amt = len * 10 * 10000000
+    const winamt = (range.max - range.min + 1 - guessArray.length) * 10 * 10000000
+    start_movelette(range.min, range.max, u64_guessArray, amt, winamt)
+    // const randomNumGenerated =
+    //   Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+    // setRandomNum(randomNumGenerated);
+    // const isWin = guessArray.includes(randomNumGenerated);
+    // setWin(isWin);
+    // setResult(`Result: ${isWin ? "Win" : "Lose"}`);
+    // if (isWin) {
+    //   const winAmount = (range.max - range.min + 1 - guessArray.length) * 10;
+    //   setBalance(balance + winAmount); // Add winnings to balance
+    // }
+    // setBalance(balance - cost); // Deduct cost from balance after submission
   };
 
   const handleRedeemClick = () => {
@@ -131,7 +180,7 @@ const App: React.FC = () => {
             <button className="bg-blue-500 text-white py-2 px-4 rounded">
               {account?.address.slice(0, 6)}...{account?.address.slice(-4)}
             </button>
-            <p className="text-black mx-4">Balance: ${balance.toFixed(2)}</p>
+            <p className="text-black mx-4">Balance:  $TELE {balance.toFixed(2)}</p>
             <button
               onClick={handleRedeemClick}
               className="bg-yellow-500 text-white py-2 px-4 rounded">
@@ -172,7 +221,7 @@ const App: React.FC = () => {
               Set Range & Start
             </button>
             <div className="mb-4">
-              <p>Cost = {cost}</p>
+              <p>Cost = {cost} $TELE</p>
               <p>
                 Winning Chance = {guesses.split(",").length}/
                 {range.max - range.min + 1} ={" "}
@@ -180,28 +229,24 @@ const App: React.FC = () => {
                   guesses.split(",").length /
                   (range.max - range.min + 1)
                 ).toFixed(1)}
+                <br />
+                Amount you win:{" "}
+                {(range.max - range.min + 1 - guesses.split(",").length) * 1} $TELE
               </p>
             </div>
             {result && (
               <div className="text-xl font-bold mb-4">
                 <p>{result}</p>
-                <p>Random Number: {randomNum}</p>
               </div>
-            )}
-            {win && (
-              <p>
-                Amount you win:{" "}
-                {(range.max - range.min + 1 - guesses.split(",").length) * 10}
-              </p>
             )}
             {showModal && (
               <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
                 <div className="bg-white p-6 rounded-lg shadow-lg w-2/3">
                   <h2 className="text-2xl font-bold mb-4 text-center">
-                    Order NFT Stickers
+                    Redeem Through Stickers
                   </h2>
                   <div className="flex justify-between items-center mb-4">
-                    <p>Balance: ${balance.toFixed(2)}</p>
+                    <p>Balance:  $TELE {balance.toFixed(2)}</p>
                     <button className="bg-green-500 text-white py-2 px-4 rounded">
                       Order!
                     </button>
@@ -219,7 +264,8 @@ const App: React.FC = () => {
                         <p className="text-lg">
                           {item.title} - ${item.price}
                         </p>
-                        <button className="mt-2 bg-yellow-500 text-white py-2 px-4 rounded">
+                        <button onClick={() => mint_nftpack(item.title, item.title)}
+                          className="mt-2 bg-yellow-500 text-white py-2 px-4 rounded" >
                           Mint
                         </button>
                       </div>
