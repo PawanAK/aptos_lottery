@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent } from 'react';
 import goodimg from "../src/assets/good.jpg";
 import evilimg from "../src/assets/evil.jpg";
 
@@ -16,7 +16,7 @@ interface NFTItem {
 
 const App: React.FC = () => {
   const [range, setRange] = useState<Range>({ min: 1, max: 10 });
-  const [guesses, setGuesses] = useState<string>("");
+  const [guesses, setGuesses] = useState<string>('');
   const [cost, setCost] = useState<number>(0);
   const [result, setResult] = useState<string | null>(null);
   const [win, setWin] = useState<boolean>(false);
@@ -39,20 +39,19 @@ const App: React.FC = () => {
   };
 
   const calculateCost = () => {
-    const guessArray = guesses.split(",").map(Number);
+    const guessArray = guesses.split(',').map(Number);
     const totalCost = guessArray.length * 10;
     setCost(totalCost);
     setBalance(balance - totalCost); // Deduct cost from balance
   };
 
   const handleSubmit = () => {
-    const guessArray = guesses.split(",").map(Number);
-    const randomNumGenerated =
-      Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+    const guessArray = guesses.split(',').map(Number);
+    const randomNumGenerated = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
     setRandomNum(randomNumGenerated);
     const isWin = guessArray.includes(randomNumGenerated);
     setWin(isWin);
-    setResult(`Result: ${isWin ? "Win" : "Lose"}`);
+    setResult(`Result: ${isWin ? 'Win' : 'Lose'}`);
     if (isWin) {
       const winAmount = (range.max - range.min + 1 - guessArray.length) * 10;
       setBalance(balance + winAmount); // Add winnings to balance
@@ -67,20 +66,18 @@ const App: React.FC = () => {
     setShowModal(false);
   };
 
+  const handleConnectClick = () => {
+    alert("Button clicked");
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-96 relative">
         <div className="flex justify-between mb-4">
-          <button className="bg-blue-500 text-white py-2 px-4 rounded">
-            Connect
-          </button>
+          <button onClick={handleConnectClick} className="bg-blue-500 text-white py-2 px-4 rounded">Connect</button>
           <div className="flex items-center space-x-2">
             <p className="text-black">Balance: ${balance.toFixed(2)}</p>
-            <button
-              onClick={handleRedeemClick}
-              className="bg-yellow-500 text-white py-2 px-4 rounded">
-              Redeem
-            </button>
+            <button onClick={handleRedeemClick} className="bg-yellow-500 text-white py-2 px-4 rounded">Redeem</button>
           </div>
         </div>
         <h1 className="text-2xl font-bold mb-4 text-center">Move-Lette</h1>
@@ -113,18 +110,13 @@ const App: React.FC = () => {
             calculateCost();
             handleSubmit();
           }}
-          className="bg-blue-500 text-white py-2 px-4 rounded mb-4 w-full">
+          className="bg-blue-500 text-white py-2 px-4 rounded mb-4 w-full"
+        >
           Set Range & Start
         </button>
         <div className="mb-4">
           <p>Cost = {cost}</p>
-          <p>
-            Winning Chance = {guesses.split(",").length}/
-            {range.max - range.min + 1} ={" "}
-            {(guesses.split(",").length / (range.max - range.min + 1)).toFixed(
-              1
-            )}
-          </p>
+          <p>Winning Chance = {guesses.split(',').length}/{range.max - range.min + 1} = {(guesses.split(',').length / (range.max - range.min + 1)).toFixed(1)}</p>
         </div>
         {result && (
           <div className="text-xl font-bold mb-4">
@@ -134,46 +126,27 @@ const App: React.FC = () => {
         )}
         {win && (
           <p>
-            Amount you win:{" "}
-            {(range.max - range.min + 1 - guesses.split(",").length) * 10}
+            Amount you win: {(range.max - range.min + 1 - guesses.split(',').length) * 10}
           </p>
         )}
         {showModal && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-2/3">
-              <h2 className="text-2xl font-bold mb-4 text-center">
-                Order NFT Stickers
-              </h2>
+              <h2 className="text-2xl font-bold mb-4 text-center">Order NFT Stickers</h2>
               <div className="flex justify-between items-center mb-4">
                 <p>Balance: ${balance.toFixed(2)}</p>
-                <button className="bg-green-500 text-white py-2 px-4 rounded">
-                  Order!
-                </button>
+                <button className="bg-green-500 text-white py-2 px-4 rounded">Order!</button>
               </div>
               <div className="flex justify-center space-x-4">
-                {nftData.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col items-center bg-gray-200 p-4 rounded-lg">
-                    <img
-                      src={item.Image}
-                      alt={item.title}
-                      className="w-32 h-32 mb-2"
-                    />
-                    <p className="text-lg">
-                      {item.title} - ${item.price}
-                    </p>
-                    <button className="mt-2 bg-yellow-500 text-white py-2 px-4 rounded">
-                      Mint
-                    </button>
+                {nftData.map(item => (
+                  <div key={item.id} className="flex flex-col items-center bg-gray-200 p-4 rounded-lg">
+                    <img src={item.Image} alt={item.title} className="w-32 h-32 mb-2" />
+                    <p className="text-lg">{item.title} - ${item.price}</p>
+                    <button className="mt-2 bg-yellow-500 text-white py-2 px-4 rounded">Mint</button>
                   </div>
                 ))}
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="mt-4 bg-red-500 text-white py-2 px-4 rounded">
-                Close
-              </button>
+              <button onClick={handleCloseModal} className="mt-4 bg-red-500 text-white py-2 px-4 rounded">Close</button>
             </div>
           </div>
         )}
