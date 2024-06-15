@@ -30,13 +30,13 @@ export const moduleAddress =
   "d7e864c4e6350c95955ad62eaacfc53f19eaa1ee2c197a7f9b36284c363889a8";
 
 const getFaBalance = async (
-  owner: Account,
+  ownerAddress: string,
   assetType: string
 ): Promise<number> => {
   const data = await aptos.getCurrentFungibleAssetBalances({
     options: {
       where: {
-        owner_address: { _eq: owner.accountAddress.toStringLong() },
+        owner_address: { _eq: ownerAddress },
         asset_type: { _eq: assetType },
       },
     },
@@ -59,13 +59,28 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0); // Initial balance for demonstration
   const { account, connected } = useWallet(); // Use connected from useWallet
-  const token = "0x65735cb9546ca07af21f4bef98ca581e30c3bdedf32c2a5d6c5e1419e95dee53"
+  const token =
+    "0x65735cb9546ca07af21f4bef98ca581e30c3bdedf32c2a5d6c5e1419e95dee53";
 
   useEffect(() => {
     const guessArray = guesses.split(",").map(Number);
     const totalCost = guessArray.length * 10;
     setCost(totalCost);
   }, [guesses]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (account) {
+        const balance = await getFaBalance(account.address, token);
+        setBalance(balance);
+        console.log(`Balance: ${balance}`);
+      }
+    };
+
+    if (connected) {
+      fetchBalance();
+    }
+  }, [account, connected]);
 
   const nftData: NFTItem[] = [
     { title: "Good Pack", price: 0, Image: goodimg, id: 1 },
