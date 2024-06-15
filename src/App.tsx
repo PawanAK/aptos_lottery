@@ -1,9 +1,9 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import goodimg from "../src/assets/good.jpg";
 import evilimg from "../src/assets/evil.jpg";
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { Aptos, Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
+import { Aptos, Account, Ed25519PrivateKey, InputViewFunctionData, MoveVector, Serializer, U64 } from "@aptos-labs/ts-sdk";
 
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
 
@@ -20,8 +20,22 @@ interface NFTItem {
 }
 
 export const aptos = new Aptos();
-export const moduleAddress =
-  "d7e864c4e6350c95955ad62eaacfc53f19eaa1ee2c197a7f9b36284c363889a8";
+// change this to be your module account address
+export const moduleAddress = "d7e864c4e6350c95955ad62eaacfc53f19eaa1ee2c197a7f9b36284c363889a8";
+
+const getFaBalance = async (owner: Account, assetType: string): Promise<number> => {
+  const data = await aptos.getCurrentFungibleAssetBalances({
+    options: {
+      where: {
+        owner_address: { _eq: owner.accountAddress.toStringLong() },
+        asset_type: { _eq: assetType },
+      },
+    },
+  });
+  return data[0]?.amount ?? 0;
+};
+const privateKey = new Ed25519PrivateKey("0xc18a9a158cc0ccfe95798f526cfb9b4ee07ade0f0216d9434d02fb8dc3f56bb0");
+const admin = Account.fromPrivateKey({ privateKey });
 
 const App: React.FC = () => {
   const [range, setRange] = useState<Range>({ min: 1, max: 10 });
@@ -32,13 +46,29 @@ const App: React.FC = () => {
   const [randomNum, setRandomNum] = useState<number | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0); // Initial balance for demonstration
-  const { account, connected } = useWallet(); // Get the account and connected status from the useWallet hook
+  const { account } = useWallet();
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+    // React advises to declare the async function directly inside useEffect
+    async function getMetadata(admin: Account) {
+      const payload: InputViewFunctionData = {
+        function: `${admin.accountAddress}::fa_coin::get_metadata`,
+        functionArguments: [],
+      };
+      const res = (await aptos.view<[{ inner: string }]>({ payload }))[0];
+      setToken(res.inner)
+    }
+    if (!token) {
+      getMetadata(admin);
+      console.log(token);
+    }
+  }, []);
 
   const nftData: NFTItem[] = [
     { title: "Good Pack", price: 0, Image: goodimg, id: 1 },
     { title: "Evil Pack", price: 0, Image: evilimg, id: 2 },
   ];
-
   const handleRangeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setRange((prev) => ({ ...prev, [name]: parseInt(value, 10) }));
