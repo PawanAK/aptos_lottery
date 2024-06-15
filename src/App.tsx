@@ -59,23 +59,7 @@ const App: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0); // Initial balance for demonstration
   const { account, connected } = useWallet(); // Use connected from useWallet
-  const [token, setToken] = useState<string>("");
-
-  useEffect(() => {
-    // React advises to declare the async function directly inside useEffect
-    async function getMetadata(admin: Account) {
-      const payload: InputViewFunctionData = {
-        function: `${admin.accountAddress}::fa_coin::get_metadata`,
-        functionArguments: [],
-      };
-      const res = (await aptos.view<[{ inner: string }]>({ payload }))[0];
-      setToken(res.inner);
-    }
-    if (!token) {
-      getMetadata(admin);
-      console.log(token);
-    }
-  }, [token]);
+  const token = "0x65735cb9546ca07af21f4bef98ca581e30c3bdedf32c2a5d6c5e1419e95dee53"
 
   useEffect(() => {
     const guessArray = guesses.split(",").map(Number);
