@@ -7,7 +7,6 @@ import {
   Aptos,
   Account,
   Ed25519PrivateKey,
-  InputViewFunctionData,
   Serializer,
   MoveVector,
   U64,
@@ -58,7 +57,6 @@ const App: React.FC = () => {
   const [cost, setCost] = useState<number>(0);
   const [result, setResult] = useState<string | null>(null);
   const [win, setWin] = useState<boolean>(false);
-  const [randomNum, setRandomNum] = useState<number | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0); // Initial balance for demonstration
   const { account, connected } = useWallet(); // Use connected from useWallet
@@ -77,6 +75,7 @@ const App: React.FC = () => {
         const balance = await getFaBalance(account.address, token);
         setBalance(balance / 100000000);
         console.log(`Balance: ${balance / 100000000}`);
+        console.log(win)
       }
     };
 
@@ -287,3 +286,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
