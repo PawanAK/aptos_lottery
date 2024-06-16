@@ -53,7 +53,7 @@ const admin = Account.fromPrivateKey({ privateKey });
 
 const App: React.FC = () => {
   const [range, setRange] = useState<Range>({ min: 1, max: 10 });
-  const [guesses, setGuesses] = useState<string>("");
+  const [guesses, setGuesses] = useState<string>("1");
   const [cost, setCost] = useState<number>(0);
   const [result, setResult] = useState<string | null>(null);
   const [win, setWin] = useState<boolean>(false);
