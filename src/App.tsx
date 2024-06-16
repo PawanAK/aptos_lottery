@@ -10,7 +10,6 @@ import {
   Serializer,
   MoveVector,
   U64,
-  AccountAddress,
 } from "@aptos-labs/ts-sdk";
 
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
@@ -25,6 +24,8 @@ interface NFTItem {
   title: string;
   price: number;
   Image: string;
+  keywords: string;
+  negative: string;
   id: number;
 }
 
@@ -167,17 +168,18 @@ const App: React.FC = () => {
   };
 
   const nftData: NFTItem[] = [
-    { title: "Good Pack", price: 0, Image: goodimg, id: 1 },
-    { title: "Evil Pack", price: 0, Image: evilimg, id: 2 },
+    { title: "Good Pack", price: 100, Image: goodimg, id: 1, negative: "Evil Expression, Scowl, Frown, No beard,Sarcastic Smile,blurry images", keywords: "Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded" },
+    { title: "Evil Pack", price: 100, Image: evilimg, id: 2, negative: "Good Expression, Smile, blurry images", keywords: "Evil ,Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded, Sarcastic smile" },
   ];
 
-  const mint_nftpack = (prompt: string, negative_prompt: string) => {
+  const mint_nftpack = (amt: number, prompt: string, negative_prompt: string) => {
     var data = {
       action: "Add Sticker",
       prompt: prompt,
       negative_prompt: negative_prompt,
     };
     // Transfer TELE to admin.walleadress
+    handletokenTransfer(amt);
     window.Telegram.WebApp.sendData(JSON.stringify(data));
   };
 
@@ -211,7 +213,11 @@ const App: React.FC = () => {
       mintCoin(admin, account?.address, 100 * 100000000);
     }
   };
-
+  const handletokenTransfer = (amt: number) => {
+    if (account) {
+      transferCoin(admin, account?.address, admin.accountAddress.toString(), amt * 100000000);
+    }
+  };
   const handleRedeemClick = () => {
     setShowModal(true);
   };
@@ -360,10 +366,10 @@ const App: React.FC = () => {
                             className="w-32 h-32 mb-2"
                           />
                           <p className="text-lg">
-                            {item.title} - ${item.price}
+                            {item.title} - $TELE {item.price}
                           </p>
                           <button
-                            onClick={() => mint_nftpack(item.title, item.title)}
+                            onClick={() => mint_nftpack(item.price, item.keywords, item.negative)}
                             className="mt-2 bg-yellow-500 text-white py-2 px-4 rounded arcade-button">
                             Mint
                           </button>
