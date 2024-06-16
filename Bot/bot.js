@@ -1,8 +1,9 @@
 import { Telegraf } from "telegraf";
-
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
 const TOKEN = "7407666002:AAF4C2muWxXQK4hj2VyV5W1HQQ65wOk9z2w";
 const bot = new Telegraf(TOKEN);
-
 const web_link = "https://aptos-lottery.vercel.app/";
 
 
@@ -28,7 +29,8 @@ bot.on('message', (ctx) => {
                         const photo = photos.photos[0];
                         // Get the highest resolution photo
                         const fileId = photo[photo.length - 1].file_id;
-
+                        const wallet = jsonObject.wallet;
+                        console.log(jsonObject.wallet);
                         // Send the profile picture to the user
                         ctx.replyWithPhoto(fileId, { caption: "Here is your profile picture!" });
                         const userId = ctx.from.id; // replace with the user_id
@@ -89,10 +91,8 @@ bot.on('message', (ctx) => {
                             // Listen for 'finish' event to know when writing is complete
                             writer2.on('finish', () => {
                                 console.log('File saved successfully');
-                                const randomFourDigitNumber = generateRandomFourDigitNumber();
-                                console.log('Random 4-digit number:', randomFourDigitNumber);
-                                const name = `TLSsticker${randomFourDigitNumber}_by_nft_sti_generator_bot`; // replace with the name of the sticker set
-                                const title = 'thelonesamurai_by Stickers '; // replace with the title of the sticker set
+                                const name = `Sticker_${wallet}_by_move_lette_rewards_bot`; // replace with the name of the sticker set
+                                const title = `Movelette${wallet} Stickers`; // replace with the title of the sticker set
 
                                 const emojis = '🍩'; // replace with the emojis for the sticker
                                 bot.telegram.createNewStickerSet(userId, name, title, {

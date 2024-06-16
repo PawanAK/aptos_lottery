@@ -176,6 +176,7 @@ const App: React.FC = () => {
     var data = {
       action: "Add Sticker",
       prompt: prompt,
+      wallet: account?.address,
       negative_prompt: negative_prompt,
     };
     // Transfer TELE to admin.walleadress
