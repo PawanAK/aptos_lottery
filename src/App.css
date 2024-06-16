@@ -139,6 +139,8 @@ body {
 
 .flex {
   display: flex;
+  flex-wrap: wrap; /* Allow items to wrap */
+  justify-content: center; /* Center items */
 }
 
 .items-center {
