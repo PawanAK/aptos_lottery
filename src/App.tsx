@@ -89,7 +89,7 @@ const App: React.FC = () => {
     const transaction = await aptos.transaction.build.simple({
       sender: admin.accountAddress,
       data: {
-        function: `${moduleAddress}::fa_coin::mint`,
+        function: `${moduleAddress}::tele_point::mint`,
         functionArguments: [receiver, amount],
       },
     });
@@ -108,7 +108,7 @@ const App: React.FC = () => {
     const transaction = await aptos.transaction.build.simple({
       sender: admin.accountAddress,
       data: {
-        function: `${admin.accountAddress}::fa_coin::transfer`,
+        function: `${admin.accountAddress}::tele_point::transfer`,
         functionArguments: [fromAddress, toAddress, amount],
       },
     });
