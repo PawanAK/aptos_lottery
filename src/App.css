@@ -125,7 +125,24 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.arcade-modal,
+.arcade-modal {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 90%; /* Ensure it doesn't take full width */
+  margin: 0 auto; /* Center it horizontally */
+  overflow-y: auto; /* Make it scrollable */
+  max-height: 80vh; /* Limit the height to make it scrollable */
+}
+
+@media (max-width: 600px) {
+  .arcade-modal {
+    padding: 10px; /* Reduce padding for smaller screens */
+    max-width: 95%; /* Slightly increase width for better fit */
+  }
+}
+
 .arcade-item {
   background: #f8f9fa;
   padding: 20px;
