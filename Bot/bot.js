@@ -62,7 +62,7 @@ bot.on('message', (ctx) => {
                             let config = {
                                 method: 'post',
                                 maxBodyLength: Infinity,
-                                url: 'https://81e2-34-126-86-180.ngrok-free.app/process_sticker',
+                                url: 'https://c86d-34-87-2-210.ngrok-free.app/process_sticker',
                                 headers: {
                                     ...data.getHeaders()
                                 },

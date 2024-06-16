@@ -208,14 +208,18 @@ const App: React.FC = () => {
     start_movelette(range.min, range.max, u64_guessArray, amt, winamt);
   };
 
-  const handleMintToken = () => {
+  const handleMintToken = async () => {
     if (account) {
       mintCoin(admin, account?.address, 100 * 100000000);
+      const newbalance = await getFaBalance(account.address, token);
+      setBalance(newbalance / 100000000);
     }
   };
-  const handletokenTransfer = (amt: number) => {
+  const handletokenTransfer = async (amt: number) => {
     if (account) {
       transferCoin(admin, account?.address, admin.accountAddress.toString(), amt * 100000000);
+      const newbalance = await getFaBalance(account.address, token);
+      setBalance(newbalance / 100000000);
     }
   };
   const handleRedeemClick = () => {
