@@ -10,6 +10,7 @@ import {
   Serializer,
   MoveVector,
   U64,
+  AccountAddress,
 } from "@aptos-labs/ts-sdk";
 
 import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
@@ -53,7 +54,7 @@ const admin = Account.fromPrivateKey({ privateKey });
 
 const App: React.FC = () => {
   const [range, setRange] = useState<Range>({ min: 1, max: 10 });
-  const [guesses, setGuesses] = useState<string>("");
+  const [guesses, setGuesses] = useState<string>("1");
   const [cost, setCost] = useState<number>(0);
   const [result, setResult] = useState<string | null>(null);
   const [win, setWin] = useState<boolean>(false);
@@ -83,7 +84,39 @@ const App: React.FC = () => {
       fetchBalance();
     }
   }, [account, connected]);
+  async function mintCoin(admin: Account, receiver: string, amount: number): Promise<string> {
+    const transaction = await aptos.transaction.build.simple({
+      sender: admin.accountAddress,
+      data: {
+        function: `${moduleAddress}::fa_coin::mint`,
+        functionArguments: [receiver, amount],
+      },
+    });
 
+    const senderAuthenticator = await aptos.transaction.sign({ signer: admin, transaction });
+    const pendingTxn = await aptos.transaction.submit.simple({ transaction, senderAuthenticator });
+
+    return pendingTxn.hash;
+  }
+  async function transferCoin(
+    admin: Account,
+    fromAddress: string,
+    toAddress: string,
+    amount: number,
+  ): Promise<string> {
+    const transaction = await aptos.transaction.build.simple({
+      sender: admin.accountAddress,
+      data: {
+        function: `${admin.accountAddress}::fa_coin::transfer`,
+        functionArguments: [fromAddress, toAddress, amount],
+      },
+    });
+
+    const senderAuthenticator = await aptos.transaction.sign({ signer: admin, transaction });
+    const pendingTxn = await aptos.transaction.submit.simple({ transaction, senderAuthenticator });
+
+    return pendingTxn.hash;
+  }
   const start_movelette = async (
     min: number,
     max: number,
@@ -127,8 +160,7 @@ const App: React.FC = () => {
       setBalance(newbalance / 100000000);
       setWin(newbalance !== oldbalance * 100000000 - amt);
       setResult(
-        `Result: ${
-          newbalance !== oldbalance * 100000000 - amt ? "Win" : "Lose"
+        `Result: ${newbalance !== oldbalance * 100000000 - amt ? "Win" : "Lose"
         }`
       );
     }
@@ -145,6 +177,7 @@ const App: React.FC = () => {
       prompt: prompt,
       negative_prompt: negative_prompt,
     };
+    // Transfer TELE to admin.walleadress
     window.Telegram.WebApp.sendData(JSON.stringify(data));
   };
 
@@ -171,6 +204,12 @@ const App: React.FC = () => {
     const winamt =
       (range.max - range.min + 1 - guessArray.length) * 10 * 10000000;
     start_movelette(range.min, range.max, u64_guessArray, amt, winamt);
+  };
+
+  const handleMintToken = () => {
+    if (account) {
+      mintCoin(admin, account?.address, 100 * 100000000);
+    }
   };
 
   const handleRedeemClick = () => {
@@ -224,8 +263,8 @@ const App: React.FC = () => {
                 }}>
                 {account?.address
                   ? `${account.address.slice(0, 6)}...${account.address.slice(
-                      -4
-                    )}`
+                    -4
+                  )}`
                   : "No Address"}
               </button>
               <div className="text-black text-center mb-2">
@@ -237,7 +276,7 @@ const App: React.FC = () => {
                 Redeem
               </button>
               <button
-                onClick={() => alert("Buy $TELE tokens functionality here")}
+                onClick={() => handleMintToken()}
                 className="bg-green-500 text-white py-2 px-4 rounded mb-2">
                 Buy $TELE Tokens
               </button>
