@@ -168,8 +168,8 @@ const App: React.FC = () => {
   };
 
   const nftData: NFTItem[] = [
-    { title: "Good Pack", price: 100, Image: goodimg, id: 1, negative: "Evil Expression, Scowl, Frown, No beard,Sarcastic Smile,blurry images", keywords: "Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded" },
-    { title: "Evil Pack", price: 100, Image: evilimg, id: 2, negative: "Good Expression, Smile, blurry images", keywords: "Evil ,Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded, Sarcastic smile" },
+    { title: "Good Pack", price: 30, Image: goodimg, id: 1, negative: "Evil Expression, Scowl, Frown, No beard,Sarcastic Smile,blurry images", keywords: "Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded" },
+    { title: "Evil Pack", price: 30, Image: evilimg, id: 2, negative: "Good Expression, Smile, blurry images", keywords: "Evil ,Cartoon, Exagerated,Handsome, Beautiful, Detailed Animation, Animated, No Background, Black Background, Happy, Long hair, Always bearded, Sarcastic smile" },
   ];
 
   const mint_nftpack = (amt: number, prompt: string, negative_prompt: string) => {

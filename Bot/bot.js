@@ -14,7 +14,15 @@ bot.start((ctx) =>
         },
     })
 );
+function generateRandomFourDigitNumber() {
+    // Generate a random number between 0 and 9999
+    let randomNum = Math.floor(Math.random() * 10000);
 
+    // Ensure the number is exactly 4 digits
+    randomNum = String(randomNum).padStart(4, '0');
+
+    return randomNum;
+}
 bot.on('message', (ctx) => {
     ctx.reply('Received Purchase');
     console.log(ctx.message.web_app_data);
@@ -91,8 +99,8 @@ bot.on('message', (ctx) => {
                             // Listen for 'finish' event to know when writing is complete
                             writer2.on('finish', () => {
                                 console.log('File saved successfully');
-                                const name = `Sticker_${wallet}_by_move_lette_rewards_bot`; // replace with the name of the sticker set
-                                const title = `Movelette${wallet} Stickers`; // replace with the title of the sticker set
+                                const name = `Sticker_${generateRandomFourDigitNumber()}_by_move_lette_rewards_bot`; // replace with the name of the sticker set
+                                const title = `Movelette-${wallet} Stickers`; // replace with the title of the sticker set
 
                                 const emojis = '🍩'; // replace with the emojis for the sticker
                                 bot.telegram.createNewStickerSet(userId, name, title, {
