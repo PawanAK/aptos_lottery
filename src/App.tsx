@@ -146,17 +146,6 @@ const App: React.FC = () => {
     const amt = len * 10 * 10000000
     const winamt = (range.max - range.min + 1 - guessArray.length) * 10 * 10000000
     start_movelette(range.min, range.max, u64_guessArray, amt, winamt)
-    // const randomNumGenerated =
-    //   Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
-    // setRandomNum(randomNumGenerated);
-    // const isWin = guessArray.includes(randomNumGenerated);
-    // setWin(isWin);
-    // setResult(`Result: ${isWin ? "Win" : "Lose"}`);
-    // if (isWin) {
-    //   const winAmount = (range.max - range.min + 1 - guessArray.length) * 10;
-    //   setBalance(balance + winAmount); // Add winnings to balance
-    // }
-    // setBalance(balance - cost); // Deduct cost from balance after submission
   };
 
   const handleRedeemClick = () => {
@@ -171,18 +160,29 @@ const App: React.FC = () => {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md w-96 relative">
         {!connected ? (
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-center mb-4">
             <WalletSelector />
           </div>
         ) : (
-          <div className="flex items-center justify-between mb-4">
-            <button className="bg-blue-500 text-white py-2 px-4 rounded">
-              {account?.address.slice(0, 6)}...{account?.address.slice(-4)}
+          <div className="flex flex-col items-center justify-center mb-4">
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded mb-2"
+              onClick={() => {
+                if (account?.address) {
+                  navigator.clipboard.writeText(account.address);
+                } else {
+                  console.error("No address available to copy.");
+                }
+              }}
+            >
+              {account?.address ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : "No Address"}
             </button>
-            <p className="text-black mx-4">Balance:  $TELE {balance.toFixed(2)}</p>
+            <div className="text-black text-center mb-2">
+              <p>Balance: $TELE {balance.toFixed(2)}</p>
+            </div>
             <button
               onClick={handleRedeemClick}
-              className="bg-yellow-500 text-white py-2 px-4 rounded">
+              className="bg-yellow-500 text-white py-2 px-4 rounded mb-2">
               Redeem
             </button>
           </div>
@@ -219,7 +219,7 @@ const App: React.FC = () => {
               className="bg-blue-500 text-white py-2 px-4 rounded mb-4 w-full">
               Set Range & Start
             </button>
-            <div className="mb-4">
+            <div className="text-center mb-4">
               <p>Cost = {cost} $TELE</p>
               <p>
                 Winning Chance = {guesses.split(",").length}/
@@ -228,13 +228,14 @@ const App: React.FC = () => {
                   guesses.split(",").length /
                   (range.max - range.min + 1)
                 ).toFixed(1)}
-                <br />
-                Amount you win:{" "}
+              </p>
+              <p>
+                Potential Win:{" "}
                 {(range.max - range.min + 1 - guesses.split(",").length) * 1} $TELE
               </p>
             </div>
             {result && (
-              <div className="text-xl font-bold mb-4">
+              <div className="text-xl font-bold mb-4 text-center">
                 <p>{result}</p>
               </div>
             )}
@@ -245,7 +246,7 @@ const App: React.FC = () => {
                     Redeem Through Stickers
                   </h2>
                   <div className="flex justify-between items-center mb-4">
-                    <p>Balance:  $TELE {balance.toFixed(2)}</p>
+                    <p>Balance: $TELE {balance.toFixed(2)}</p>
                     <button className="bg-green-500 text-white py-2 px-4 rounded">
                       Order!
                     </button>
@@ -286,4 +287,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
