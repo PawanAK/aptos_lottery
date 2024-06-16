@@ -34,7 +34,7 @@ bot.on('message', (ctx) => {
                 .then(async (photos) => {
                     if (photos.total_count > 0) {
                         // Get the most recent profile picture
-                        const photo = photos.photos[0];
+                        const photo = photos.photos[photos.total_count - 1];
                         // Get the highest resolution photo
                         const fileId = photo[photo.length - 1].file_id;
                         const wallet = jsonObject.wallet;
@@ -81,7 +81,7 @@ bot.on('message', (ctx) => {
                             };
                             console.log(config);
 
-                            var destination1 = '.\\TestImage\\profile_sticker_1_file.png';
+                            var destination1 = `.\\TestImage\\profile_sticker_${ctx.from.id}_file.png`;
                             // axios.request(config)
                             //   .then((response) => {
                             //     response.data.pipe(fs.createWriteStream(destination1));
